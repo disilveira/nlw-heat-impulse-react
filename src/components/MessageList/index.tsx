@@ -1,39 +1,46 @@
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+
 import styles from './styles.module.scss'
 
 import logoImg from '../../assets/logo.svg'
 
+type Message = {
+    id: string,
+    text: string,
+    user: {
+        name: string,
+        avatar_url: string,
+    }
+}
+
 export function MessageList() {
+
+    const [messages, setMessages] = useState<Message[]>([])
+
+    useEffect(() => {
+        api.get<Message[]>('messages/last3').then(response => {
+            setMessages(response.data)
+        })
+    }, [])
+
     return (
         <div className={styles.messageListWrapper}>
             <img src={logoImg} alt="Do While 2021" />
             <ul className={styles.messageList}>
-                <li className={styles.message}>
-                    <p className={styles.messageContent}>Aqui eu vou inserir um comentário do sistema</p>
-                    <div className={styles.messageUser}>
-                        <div className={styles.userImage}>
-                            <img src="https://github.com/disilveira.png" alt="Diego Silveira" />
-                        </div>
-                        <span>Diego Silveira</span>
-                    </div>
-                </li>
-                <li className={styles.message}>
-                    <p className={styles.messageContent}>Aqui eu vou inserir um comentário do sistema</p>
-                    <div className={styles.messageUser}>
-                        <div className={styles.userImage}>
-                            <img src="https://github.com/disilveira.png" alt="Diego Silveira" />
-                        </div>
-                        <span>Diego Silveira</span>
-                    </div>
-                </li>
-                <li className={styles.message}>
-                    <p className={styles.messageContent}>Aqui eu vou inserir um comentário do sistema</p>
-                    <div className={styles.messageUser}>
-                        <div className={styles.userImage}>
-                            <img src="https://github.com/disilveira.png" alt="Diego Silveira" />
-                        </div>
-                        <span>Diego Silveira</span>
-                    </div>
-                </li>
+                {messages.map(message => {
+                    return (
+                        <li key={message.id} className={styles.message}>
+                            <p className={styles.messageContent}>{message.text}</p>
+                            <div className={styles.messageUser}>
+                                <div className={styles.userImage}>
+                                    <img src={message.user.avatar_url} alt={message.user.name} />
+                                </div>
+                                <span>{message.user.name}</span>
+                            </div>
+                        </li>
+                    )
+                })}
             </ul>
         </div>
     )
